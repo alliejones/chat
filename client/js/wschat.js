@@ -12,6 +12,10 @@
     return this;
   };
 
+  WSChat.prototype.send = function (message) {
+    this.client.send(message);
+  };
+
   WSChat.prototype.logout = function () {
     this.client.disconnect();
   };
@@ -25,18 +29,3 @@
   scope.WSChat = WSChat;
 })(this);
 
-$(function() {
-  var oldLog = window.console.log;
-  window.console.log = function () {
-    var args = Array.prototype.slice.call(arguments, 0);
-    oldLog.apply(window.console, args);
-    $('body').append('<p>'+args.join(' ')+'</p>');
-  };
-
-  $(window).on('beforeunload', function() {
-    // close socket connection when the page is reloaded or closed
-    wsChat.logout();
-  });
-
-  window.wsChat = new WSChat('ws://0.0.0.0:8080/').login({ username: 'allie' });
-});

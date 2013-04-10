@@ -2,12 +2,10 @@
   function WSClient (url, pubsub) {
     this.url = url;
     this.pubsub = pubsub;
-
-    this.pubsub.on('login', this.login.bind(this));
   }
 
-  WSClient.prototype.login = function (settings) {
-    this.username = settings.username;
+  WSClient.prototype.login = function (username) {
+    this.username = username;
     this.connect();
   };
 
@@ -23,17 +21,21 @@
     this.socket.close();
   },
 
-  WSClient.prototype.send = function (msg) {
-    if (typeof msg !== 'string') msg = JSON.stringify(msg);
-    this.socket.send(msg);
+  WSClient.prototype.send = function (msg, type) {
+    type = type || 'user';
+    message = JSON.stringify({
+      type: type,
+      content: msg
+    });
+    this.socket.send(message);
   },
 
-  WSClient.prototype.onOpen = function (msg) {
-    this.send({command: 'login', username: this.username });
+  WSClient.prototype.onOpen = function (e) {
+    this.send(this.username, 'login');
   },
 
-  WSClient.prototype.onMessage = function (msg) {
-    this.pubsub.emit('message', {type: 'server', content: msg.data });
+  WSClient.prototype.onMessage = function (e) {
+    this.pubsub.emit('message', JSON.parse(e.data));
   },
 
   WSClient.prototype.onClose = function(e) {

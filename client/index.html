@@ -9,5 +9,15 @@
     <script src="js/wsclient.js"></script>
     <script src="js/pubsub.js"></script>
     <script src="js/wschat.js"></script>
+    <script>
+      $(function() {
+        $(window).on('beforeunload', function() {
+          // close socket connection when the page is reloaded or closed
+          wsChat.logout();
+        });
+
+        window.wsChat = new WSChat('ws://0.0.0.0:8080/').login('allie');
+      });
+    </script>
   </body>
 </html>
