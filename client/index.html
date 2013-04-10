@@ -9,6 +9,7 @@
     <script src="js/wsclient.js"></script>
     <script src="js/pubsub.js"></script>
     <script src="js/wschat.js"></script>
+    <script src="js/display.js"></script>
     <script>
       $(function() {
         $(window).on('beforeunload', function() {
@@ -16,7 +17,7 @@
           wsChat.logout();
         });
 
-        window.wsChat = new WSChat('ws://0.0.0.0:8080/').login('allie');
+        window.wsChat = new WSChat('ws://0.0.0.0:8080/');
       });
     </script>
   </body>

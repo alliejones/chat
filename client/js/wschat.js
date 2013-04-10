@@ -13,11 +13,15 @@
   };
 
   WSChat.prototype.send = function (message) {
-    this.client.send(message);
+    if (this.client !== null) {
+      this.client.send(message);
+    }
   };
 
   WSChat.prototype.logout = function () {
-    this.client.disconnect();
+    if (this.client !== null) {
+      this.client.disconnect();
+    }
   };
 
   WSChat.prototype.on = function () {
