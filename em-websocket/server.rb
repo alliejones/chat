@@ -21,9 +21,13 @@ module WSChat
       msg
     end
 
-    def to_json
+    def to_json(*a)
+      as_json.to_json(*a)
+    end
+
+    def as_json(options = {})
       user = @client ? { id: @client.sid, username: @client.username } : nil
-      { type: @type, content: @content, user: user }.to_json
+      { type: @type, content: @content, user: user }
     end
   end
 
@@ -48,13 +52,12 @@ module WSChat
     end
 
     def login(username)
-      puts "Logging in #{username}"
       @username = username
-      @server.broadcast self.create_msg("#{@username} has connected.", 'user:login')
+      @server.broadcast self.create_msg(nil, 'user:login')
     end
 
     def logout
-      @server.broadcast self.create_msg("#{@username} has disconnected.", 'user:logout')
+      @server.broadcast self.create_msg(nil, 'user:logout')
     end
 
     def handle(message)
@@ -66,15 +69,23 @@ module WSChat
       end
     end
 
-    def parse_command(content)
-      content.split
+    def send(message)
+      @ws.send message.to_json
+    end
+
+    def to_json(*a)
+      as_json.to_json(*a)
+    end
+
+    def as_json(options = {})
+      { id: @sid, username: @username }
     end
   end
 
   class Server
     def initialize(channel)
       @channel = channel
-      @clients = {}
+      @clients = []
     end
 
     def broadcast(message)
@@ -85,14 +96,14 @@ module WSChat
       sid = @channel.subscribe { |msg| client.ws.send msg }
       client.sid = sid
       client.server = self
-      @clients[sid] = client
+      @clients.push client
       puts "Client ##{client.sid} connected, #{@clients.length} connections"
 
-      self.broadcast WSChat::Message.new(client.sid, 'server:connection')
+      client.send WSChat::Message.new(@clients.select{ |c| c.sid != sid }, 'server:connection')
     end
 
     def unsubscribe(client)
-      @clients.delete(client.sid)
+      @clients.delete(client)
       client.logout
       puts "Client ##{client.sid} disconnected, #{@clients.length} connections"
     end
