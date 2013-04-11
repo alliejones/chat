@@ -35,7 +35,10 @@
   },
 
   WSClient.prototype.onMessage = function (e) {
-    this.pubsub.emit('message', JSON.parse(e.data));
+    var response = JSON.parse(e.data);
+    var type = response.type;
+    delete response.type;
+    this.pubsub.emit(type, response);
   },
 
   WSClient.prototype.onClose = function(e) {
