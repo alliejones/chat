@@ -22,7 +22,7 @@
   },
 
   WSClient.prototype.send = function (msg, type) {
-    type = type || 'user';
+    type = type || 'user:message';
     message = JSON.stringify({
       type: type,
       content: msg
@@ -31,7 +31,7 @@
   },
 
   WSClient.prototype.onOpen = function (e) {
-    this.send(this.username, 'login');
+    this.send(this.username, 'server:login');
   },
 
   WSClient.prototype.onMessage = function (e) {
@@ -39,7 +39,7 @@
   },
 
   WSClient.prototype.onClose = function(e) {
-    this.pubsub.emit('message', {type: 'server', content: 'Disconnected from server.'});
+    this.pubsub.emit('message', {type: 'local:logout', content: 'Disconnected from server.'});
   }
 
   scope.WSClient = WSClient;

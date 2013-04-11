@@ -7,25 +7,23 @@ module WSChat
   class Message
     attr_accessor :content, :type, :client
 
-    def initialize(content=nil, type='user', client=nil)
+    def initialize(content=nil, type='user:message', client=nil)
       @content = content
       @type = type
       @client = client
     end
 
-    def from_json!(json_string)
+    def self.from_json(json_string)
+      msg = self.new
       data = JSON.parse json_string
-      @content = data['content']
-      @type = data['type']
-      self
+      msg.content = data['content']
+      msg.type = data['type']
+      msg
     end
 
     def to_json
-      if @type == 'user'
-        { type: @type, content: @content, user: @client.username }.to_json
-      else
-        { type: @type, content: @content, user: nil }.to_json
-      end
+      user = @client ? { id: @client.sid, username: @client.username } : nil
+      { type: @type, content: @content, user: user }.to_json
     end
   end
 
@@ -36,20 +34,32 @@ module WSChat
       @ws = ws
       @sid = nil
       @server = nil
-      @username = 'test'
+      @username = 'Anonymous'
     end
 
-    def create_msg(content=nil)
-      WSChat::Message.new(content, 'user', self)
+    def create_msg(content=nil, type='user')
+      WSChat::Message.new(content, type, self)
+    end
+
+    def create_msg_from_json(json_string)
+      msg = WSChat::Message.from_json(json_string)
+      msg.client = self
+      msg
     end
 
     def login(username)
+      puts "Logging in #{username}"
       @username = username
+      @server.broadcast self.create_msg("#{@username} has connected.", 'user:login')
+    end
+
+    def logout
+      @server.broadcast self.create_msg("#{@username} has disconnected.", 'user:logout')
     end
 
     def handle(message)
       case message.type
-      when 'login'
+      when 'server:login'
         self.login message.content
       else
         server.broadcast message
@@ -76,16 +86,15 @@ module WSChat
       client.sid = sid
       client.server = self
       @clients[sid] = client
+      puts "Client ##{client.sid} connected, #{@clients.length} connections"
 
-      message = "Client ##{client.sid} connected, #{@clients.length} connections"
-      puts message
-      self.broadcast WSChat::Message.new(message, 'server')
+      self.broadcast WSChat::Message.new(client.sid, 'server:connection')
     end
 
     def unsubscribe(client)
       @clients.delete(client.sid)
-      message = "Client ##{client.sid} disconnected, #{@clients.length} connections"
-      self.broadcast WSChat::Message.new(message, 'server')
+      client.logout
+      puts "Client ##{client.sid} disconnected, #{@clients.length} connections"
     end
   end
 end
@@ -102,7 +111,7 @@ EM.run {
 
       ws.onmessage do |msg|
         puts "Client ##{client.sid}: #{msg}"
-        message = client.create_msg.from_json!(msg)
+        message = client.create_msg_from_json(msg)
         client.handle message
       end
     }
