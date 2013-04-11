@@ -14,7 +14,7 @@
 
   PubSub.prototype.emit = function (eventType) {
     var handlerArgs = Array.prototype.slice.call(arguments, 1);
-    console.log('emit', eventType, JSON.stringify(handlerArgs));
+    console.log(eventType, JSON.stringify(handlerArgs));
     if (eventType in this.handlers) {
       for (var i = 0; i < this.handlers[eventType].length; i++) {
         this.handlers[eventType][i].apply(this, handlerArgs);

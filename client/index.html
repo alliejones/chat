@@ -2,23 +2,55 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="../vendor/bootstrap/docs/assets/css/bootstrap.css">
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span4">
+          <div class="wschat-users">
+            <h2>Users</h2>
+              <ul class="user_list"></ul>
+          </div>
+        </div>
+        <div class="span8">
+          <div class="wschat-log">
+            <h2>Chat log</h2>
+            <div class="log">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wschat-input">
+      <form class="form-inline">
+        <textarea rows="2" name="message"></textarea>
+        <input type="submit" value="Send" class="action-send btn btn-primary btn-large">
+      </form>
+    </div>
+
+    <div class="modal hide fade" id="modal" data-backdrop="static" data-keyboard="false">
+      <div class="modal-header">
+        <h3>Log in</h3>
+      </div>
+      <div class="modal-body">
+        <label>Username</label>
+        <input type="text" name="username">
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn btn-primary action-login">Login</a>
+      </div>
+    </div>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="../vendor/bootstrap/docs/assets/js/bootstrap.min.js"></script>
     <script src="js/wsclient.js"></script>
     <script src="js/pubsub.js"></script>
     <script src="js/wschat.js"></script>
     <script src="js/display.js"></script>
-    <script>
-      $(function() {
-        $(window).on('beforeunload', function() {
-          // close socket connection when the page is reloaded or closed
-          wsChat.logout();
-        });
 
-        window.wsChat = new WSChat('ws://0.0.0.0:8080/');
-      });
     </script>
   </body>
 </html>

@@ -1,7 +1,21 @@
-.chat-response {
+.wschat-log {
+  .system {
+    color: #999;
+    font-style: italic;
+  }
+}
+
+.wschat-input {
+  box-sizing: border-box;
   background: #eee;
   bottom: 0;
-  left: 0;
   height: 10%;
-  position: absolute;
+  padding: 20px;
+  position: fixed;
+  width: 100%;
+
+  .form-inline {
+    text-align: center;
+    textarea { width: 50%; }
+  }
 }
