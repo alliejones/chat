@@ -1,13 +1,11 @@
 ;(function(scope) {
-  scope.users = [];
+  var users = [];
   var $userList = $('.wschat-users .user_list');
   var $modal = $('#modal');
   var $chatLog = $('.wschat-log .log');
+  var wsChat = new WSChat('ws://0.0.0.0:8080/');
 
   $(function() {
-    wsChat = new WSChat('ws://0.0.0.0:8080/');
-    wsChat.login('allie');
-
     // close socket connection when the page is reloaded or closed
     $(window).on('beforeunload', function() { wsChat.logout(); });
 
@@ -16,7 +14,9 @@
 
     $('.action-login').click(logIn);
     $('.action-send').click(sendMessage);
+  });
 
+  function attachListeners() {
     wsChat.on('server:connection', addUsers);
     wsChat.on('local:logout', logout);
     wsChat.on('user:message', displayUserMessage);
@@ -24,13 +24,14 @@
     wsChat.on('user:logout', displayLogoutMessage);
     wsChat.on('user:login', addUser);
     wsChat.on('user:logout', removeUser);
-  });
+  }
 
   function logIn(e) {
     var username = $('input[name="username"]').val();
     if (username !== '') {
       $modal.modal('hide');
       wsChat.login(username);
+      attachListeners();
     }
   }
 
@@ -49,11 +50,11 @@
   }
 
   function displayLoginMessage(msg) {
-    $chatLog.append('<p class="system">'+msg.user.id+' has logged in.</p>');
+    $chatLog.append('<p class="system">'+msg.user.username+' has logged in.</p>');
   }
 
   function displayLogoutMessage(msg) {
-    $chatLog.append('<p class="system">'+msg.user.id+' has logged out.</p>');
+    $chatLog.append('<p class="system">'+msg.user.username+' has logged out.</p>');
   }
 
   function addUsers(msg) {
@@ -87,7 +88,7 @@
     var html = '';
     $userList.empty();
     $.each(users, function() {
-      html += "\n<li class='user-"+this.id+"'>"+this.username+' ['+this.id+"]</li>";
+      html += "\n<li class='user-"+this.id+"'>"+this.username+"</li>";
     });
     $userList.append(html);
   }
