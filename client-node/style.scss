@@ -1,0 +1,21 @@
+.wschat-log {
+  .system {
+    color: #999;
+    font-style: italic;
+  }
+}
+
+.wschat-input {
+  box-sizing: border-box;
+  background: #eee;
+  bottom: 0;
+  height: 10%;
+  padding: 20px;
+  position: fixed;
+  width: 100%;
+
+  .form-inline {
+    text-align: center;
+    textarea { width: 50%; }
+  }
+}
